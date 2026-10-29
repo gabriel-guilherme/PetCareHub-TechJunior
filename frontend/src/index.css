@@ -1,0 +1,33 @@
+@import url('https://googleapis.com');
+
+@import "tailwindcss";
+
+* {
+  box-sizing: border-box;
+}
+
+body, #root {
+  min-height: 100vh;
+  width: 100%;
+}
+
+@theme {
+  --color-primaria: #0F766E;
+  --color-primariaEscura: #134E4A;
+  --color-acao: #166534;
+  --color-clara: #CCFBF1;
+  --color-fundo: #F8FAFC;
+  --color-superficie: #FFFFFF;
+  --color-texto: #0F17A2;
+  --color-textoSuave: #475569;
+  --color-borda: #E2E8F0;
+  --color-erro: #B91C1C;
+  --color-foco_borda: #0F766E;
+
+  --radius-campos_e_botoes: 10px;
+  --radius-cartoes_e_pilulas: 16px;
+  --border-borda: 3px;
+
+  --font-inter: "Inter", sans-serif;
+
+}
