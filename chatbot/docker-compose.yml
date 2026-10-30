@@ -13,6 +13,9 @@ services:
       PORT: "8001"
     env_file:
       - ./.env
+    depends_on:
+      ollama-init:
+        condition: service_completed_successfully
     healthcheck:
       test:
         - CMD
@@ -26,8 +29,10 @@ services:
 
   ollama:
     image: ollama/ollama
-    profiles:
-      - llm
+    environment:
+      # Mantém o modelo carregado na memória entre as mensagens; sem isso,
+      # o recarregamento estoura o timeout do modelo (RNF11).
+      OLLAMA_KEEP_ALIVE: "-1"
     volumes:
       - ollama_data:/root/.ollama
     healthcheck:
@@ -36,6 +41,22 @@ services:
       timeout: 5s
       retries: 5
       start_period: 10s
+
+  # Baixa o modelo na primeira subida (fica salvo no volume) e o carrega na
+  # memória antes de o chatbot começar a receber mensagens.
+  ollama-init:
+    image: ollama/ollama
+    environment:
+      OLLAMA_HOST: ollama:11434
+      LLM_MODEL: ${LLM_MODEL:-llama3.2}
+    entrypoint: ["sh", "-c"]
+    command:
+      - >-
+        (ollama show "$$LLM_MODEL" > /dev/null 2>&1 || ollama pull "$$LLM_MODEL")
+        && ollama run "$$LLM_MODEL" --think=false "Responda apenas: ok" > /dev/null
+    depends_on:
+      ollama:
+        condition: service_healthy
 
 volumes:
   ollama_data:
