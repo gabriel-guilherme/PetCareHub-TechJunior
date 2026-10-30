@@ -26,14 +26,11 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<TutorResponse> register(@Valid @RequestBody RegistroRequest request) {
-
-        TutorResponse response = authService.registrarTutor(request);
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        return ResponseEntity.status(HttpStatus.CREATED).body(authService.registrarTutor(request));
     }
 
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest request) {
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(authService.autenticarTutor(request));
     }
 }
