@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import com.petcarehub.backend.dtos.servicos.CreateServicoRequest;
 import org.springframework.web.bind.annotation.RequestParam;
 import java.time.LocalDate;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 
 @RestController
 @RequestMapping("/api/servicos")
@@ -35,6 +36,7 @@ public class ServicosController {
     }
 
     @GetMapping("/{id}/horarios")
+    @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<List<String>> getHorariosLivres(
             @PathVariable Long id,
             @RequestParam LocalDate data) {
@@ -42,12 +44,14 @@ public class ServicosController {
     }
 
     @PostMapping("/")
+    @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<ServicoResponse> createServico(@RequestBody CreateServicoRequest servico) {
         ServicoResponse response = servicoService.createServico(servico);
         return ResponseEntity.ok(response);
     }
 
     @DeleteMapping("/{id}")
+    @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<Void> deleteServico(@PathVariable Long id) {
         servicoService.deleteServico(id);
         return ResponseEntity.noContent().build();

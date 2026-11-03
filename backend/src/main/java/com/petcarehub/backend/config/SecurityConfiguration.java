@@ -20,12 +20,13 @@ import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.JwtValidators;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
-import com.nimbusds.jose.jwk.source.ImmutableSecret;
 import org.springframework.security.web.SecurityFilterChain;
+
+import com.nimbusds.jose.jwk.source.ImmutableSecret;
 
 @Configuration
 @EnableWebSecurity
-public class SecurityConfig {
+public class SecurityConfiguration {
 
     @Bean
     PasswordEncoder passwordEncoder() {
@@ -69,6 +70,7 @@ public class SecurityConfig {
                     .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
                     .requestMatchers(
+                            "/swagger-ui.html",
                             "/swagger-ui/**",
                             "/v3/api-docs/**"
                     ).permitAll()

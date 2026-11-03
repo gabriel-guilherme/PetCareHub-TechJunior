@@ -16,9 +16,11 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import com.petcarehub.backend.entities.StatusAgendamento;
 import org.springframework.web.bind.annotation.RequestParam;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 
 @RestController
 @RequestMapping("/api/agendamentos")
+@SecurityRequirement(name = "bearerAuth")
 public class AgendamentosController {
     private final AgendamentoService agendamentoService;
 

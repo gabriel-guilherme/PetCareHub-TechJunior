@@ -16,12 +16,14 @@ import com.petcarehub.backend.dtos.pets.CreatePetRequest;
 import com.petcarehub.backend.dtos.pets.UpdatePetRequest;
 import com.petcarehub.backend.dtos.pets.PetResponse;
 import org.springframework.security.oauth2.jwt.Jwt;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 
 import jakarta.validation.Valid;
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/pets")
+@SecurityRequirement(name = "bearerAuth")
 public class PetsController {
     private final PetService petService;
 
