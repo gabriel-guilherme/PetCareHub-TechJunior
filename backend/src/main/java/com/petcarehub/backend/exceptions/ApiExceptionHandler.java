@@ -19,4 +19,16 @@ public class ApiExceptionHandler {
             CredenciaisInvalidasException exception) {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     }
+
+    @ExceptionHandler(TutorNaoEncontradoException.class)
+    public ResponseEntity<Void> tratarTutorNaoEncontrado(
+            TutorNaoEncontradoException exception) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+    }
+
+    @ExceptionHandler(PetNaoEncontradoException.class)
+    public ResponseEntity<Void> tratarPetNaoEncontrado(
+            PetNaoEncontradoException exception) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+    }
 }
