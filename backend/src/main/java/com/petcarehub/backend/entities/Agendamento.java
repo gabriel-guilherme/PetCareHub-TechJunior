@@ -2,6 +2,8 @@ package com.petcarehub.backend.entities;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -12,6 +14,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import jakarta.validation.constraints.NotNull;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "agendamentos")
@@ -42,9 +45,19 @@ public class Agendamento {
     @Setter
     @NotNull
     @Column(nullable = false)
-    private String dataHora;
+    private LocalDateTime dataHora;
 
-    public Agendamento(Tutor tutor, Servico servico, Pet pet, String dataHora) {
+    @Setter
+    private String observacao;
+
+    @Setter
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private StatusAgendamento status = StatusAgendamento.AGENDADO;
+
+    private final LocalDateTime criadoEm = LocalDateTime.now();
+
+    public Agendamento(Tutor tutor, Servico servico, Pet pet, LocalDateTime dataHora) {
         this.tutor = tutor;
         this.servico = servico;
         this.pet = pet;
