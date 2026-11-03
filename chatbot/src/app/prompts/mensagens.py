@@ -1,4 +1,4 @@
-"""Mensagens padrão do chatbot (DESENHO_CONVERSAS.md, seção 6).
+"""Mensagens padrão do chatbot (DESENHO_CONVERSAS.md).
 
 Os campos entre chaves são preenchidos apenas com dados da API ou da
 configuração.
@@ -46,4 +46,21 @@ FORA_DE_ESCOPO = (
 )
 FALHA_BACKEND = (
     "Não consegui consultar o sistema agora. Tente novamente em alguns instantes."
+)
+FUNCIONAMENTO = "O atendimento é {horario}."
+HORARIOS_LIVRES = (
+    "Os horários livres dependem do serviço e do dia. Me diga qual serviço e "
+    "qual dia você quer que eu verifico para você."
+)
+SERVICO_NAO_ENCONTRADO = (
+    "Não encontrei o serviço {servico}. Os serviços disponíveis são: {nomes}."
+)
+LISTA_SERVICOS = "Estes são os nossos serviços:\n{itens}"
+OFERTA_AGENDAR = "Quer agendar para algum dos seus pets?"
+SEM_AGENDAMENTOS_STATUS = "Não encontrei agendamentos {status} na sua conta."
+LISTA_AGENDAMENTOS = "Encontrei {total}:\n{itens}"
+LISTA_AGENDAMENTOS_RESTANTES = "e mais {restantes}."
+AGENDAMENTO_EM_BREVE = (
+    "Ainda não consigo {acao} agendamentos pelo chat. Você pode fazer isso em "
+    "Meus agendamentos."
 )
