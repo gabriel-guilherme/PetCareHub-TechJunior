@@ -126,6 +126,10 @@ public class AgendamentoService {
             throw new CancelamentoNaoPermitidoException();
         }
 
+        if (agendamento.getDataHora().isBefore(LocalDateTime.now().plusHours(2))) {
+            throw new CancelamentoNaoPermitidoException();
+        }
+
         agendamento.setStatus(StatusAgendamento.CANCELADO);
         Agendamento updatedAgendamento = agendamentoRepository.save(agendamento);
 
