@@ -1,5 +1,6 @@
 package com.petcarehub.backend.services;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,32 +21,61 @@ import com.petcarehub.backend.exceptions.HorarioAgendamentoInvalidoException;
 import com.petcarehub.backend.exceptions.AgendamentoConflitanteException;
 
 import java.util.List;
+import java.time.Clock;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.DayOfWeek;
+import java.time.format.DateTimeParseException;
 
 @Service
 public class AgendamentoService {
     private final AgendamentoRepository agendamentoRepository;
     private final PetRepository petRepository;
     private final ServicoRepository servicoRepository;
+    private final Clock clock;
 
+    @Autowired
     public AgendamentoService(
             AgendamentoRepository agendamentoRepository,
             PetRepository petRepository,
             ServicoRepository servicoRepository) {
+        this(agendamentoRepository, petRepository, servicoRepository, Clock.systemDefaultZone());
+    }
+
+    AgendamentoService(
+            AgendamentoRepository agendamentoRepository,
+            PetRepository petRepository,
+            ServicoRepository servicoRepository,
+            Clock clock) {
         this.agendamentoRepository = agendamentoRepository;
         this.petRepository = petRepository;
         this.servicoRepository = servicoRepository;
+        this.clock = clock;
     }
 
     @Transactional
     public AgendamentoResponse createAgendamento(CreateAgendamentoRequest request, Long tutorId) {
+        if (request.petId() == null) {
+            throw new PetNaoEncontradoException();
+        }
         Pet pet = petRepository.findByIdAndTutor_Id(request.petId(), tutorId)
                 .orElseThrow(() -> new PetNaoEncontradoException());
+
+        if (request.servicoId() == null) {
+            throw new ServicoNaoEncontradoException();
+        }
         Servico servico = servicoRepository.findById(request.servicoId())
                 .orElseThrow(() -> new ServicoNaoEncontradoException());
 
-        LocalDateTime dataHora = LocalDateTime.parse(request.dataHora());
+        LocalDateTime dataHora;
+        try {
+            if (request.dataHora() == null || request.dataHora().isBlank()) {
+                throw new HorarioAgendamentoInvalidoException();
+            }
+            dataHora = LocalDateTime.parse(request.dataHora());
+        } catch (DateTimeParseException exception) {
+            throw new HorarioAgendamentoInvalidoException();
+        }
 
         LocalTime horario = dataHora.toLocalTime();
 
@@ -53,15 +83,17 @@ public class AgendamentoService {
                 horario.isBefore(LocalTime.of(8, 0))
                 || horario.isAfter(LocalTime.of(17, 30));
 
+        boolean domingo = dataHora.getDayOfWeek() == DayOfWeek.SUNDAY;
+
         boolean minutoInvalido =
                 horario.getMinute() != 0 && horario.getMinute() != 30;
 
         boolean temSegundosOuNanos =
                 horario.getSecond() != 0 || horario.getNano() != 0;
 
-        boolean dataHoraInvalida = !dataHora.isAfter(LocalDateTime.now());
+        boolean dataHoraInvalida = !dataHora.isAfter(LocalDateTime.now(clock));
 
-        if (foraDoExpediente || minutoInvalido || temSegundosOuNanos || dataHoraInvalida) {
+        if (domingo || foraDoExpediente || minutoInvalido || temSegundosOuNanos || dataHoraInvalida) {
             throw new HorarioAgendamentoInvalidoException();
         }
 
@@ -126,7 +158,7 @@ public class AgendamentoService {
             throw new CancelamentoNaoPermitidoException();
         }
 
-        if (agendamento.getDataHora().isBefore(LocalDateTime.now().plusHours(2))) {
+        if (agendamento.getDataHora().isBefore(LocalDateTime.now(clock).plusHours(2))) {
             throw new CancelamentoNaoPermitidoException();
         }
 
