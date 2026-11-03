@@ -8,5 +8,5 @@ public record RegistroRequest(
     @NotBlank @Size(max = 120) String nome,
     @NotBlank @Email @Size(max = 254) String email,
     @NotBlank @Size(max = 20) String telefone,
-    @NotBlank String senha
+    @NotBlank @Size(min = 8) String senha
 ) {}
