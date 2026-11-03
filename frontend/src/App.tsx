@@ -2,9 +2,11 @@ import { useState } from 'react';
 import { Login } from './screens/Login';
 import { Cadastro } from './screens/Cadastro';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { Pets } from './screens/Pets';
+import { Servicos } from './screens/Servicos';
 
 export default function App() {
-  const [telaAtual, setTelaAtual] = useState<'login' | 'cadastro'>('login');
+  
 
   return (
     <BrowserRouter>
@@ -17,15 +19,17 @@ export default function App() {
         
         {/* Define a rota para a tela de cadastro */}
         <Route path="/cadastro" element={<Cadastro />} />
+
+        {/* Define a rota para a tela de pets */}
+        <Route path="/pets" element={<Pets />} />
+
+        {/* Define a rota para a tela de servicos */}
+        <Route path="/servicos" element={<Servicos />} />
+
       </Routes>
     </BrowserRouter>
   );
-
-  /*if (telaAtual === 'cadastro') {
-    return <Cadastro onIrParaLogin={() => setTelaAtual('login')} />;
-  }
-
-  return <Login onIrParaCadastro={() => setTelaAtual('cadastro')} />;*/
+  
 }
 
 
