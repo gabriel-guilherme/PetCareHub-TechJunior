@@ -1,78 +1,75 @@
 import asyncio
 
-from fastapi.testclient import TestClient
-from langchain_core.language_models.fake_chat_models import GenericFakeChatModel
 from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
 
-from app.core.config import Settings
-from app.main import app
-from app.prompts import mensagens
-from app.schemas.chat import MensagemHistorico
-from app.services.llm import GeradorLLM
-
-client = TestClient(app)
+from app.schemas.chat import Intencao, MensagemHistorico
+from app.services.llm import ClassificadorLLM, SaidaModelo
+from conftest import config_teste
 
 
-class ModeloLento:
-    async def ainvoke(self, _mensagens):
-        await asyncio.sleep(1)
+class EstruturadoFalso:
+    def __init__(self, saida=None, atraso: float = 0, erro: Exception | None = None) -> None:
+        self.saida, self.atraso, self.erro = saida, atraso, erro
+        self.recebidas = None
+
+    async def ainvoke(self, mensagens):
+        self.recebidas = mensagens
+        await asyncio.sleep(self.atraso)
+        if self.erro:
+            raise self.erro
+        return self.saida
 
 
-class ModeloComErro:
-    async def ainvoke(self, _mensagens):
-        raise ConnectionError("Ollama fora do ar")
+class ModeloFalso:
+    def __init__(self, estruturado: EstruturadoFalso) -> None:
+        self.estruturado = estruturado
+
+    def with_structured_output(self, esquema):
+        assert esquema is SaidaModelo
+        return self.estruturado
 
 
-def _config(**valores) -> Settings:
-    return Settings(_env_file=None, **valores)
+def _classificador(estruturado: EstruturadoFalso, **config) -> ClassificadorLLM:
+    return ClassificadorLLM(ModeloFalso(estruturado), config_teste(**config))
 
 
-def test_gerador_devolve_texto_do_modelo() -> None:
-    modelo = GenericFakeChatModel(messages=iter([AIMessage(content=" Olá, tutor! ")]))
-    gerador = GeradorLLM(modelo, _config())
+def test_converte_saida_do_modelo_em_classificacao() -> None:
+    saida = SaidaModelo(intencao=Intencao.CRIAR_AGENDAMENTO, pet="Thor", servico="banho")
 
-    assert asyncio.run(gerador.gerar("oi", [])) == "Olá, tutor!"
+    resultado = asyncio.run(_classificador(EstruturadoFalso(saida)).classificar("oi", []))
+
+    assert resultado.intencao is Intencao.CRIAR_AGENDAMENTO
+    assert resultado.entidades.pet == "Thor"
+    assert resultado.entidades.servico == "banho"
 
 
-def test_gerador_monta_sistema_historico_e_mensagem_sem_token() -> None:
-    gerador = GeradorLLM(GenericFakeChatModel(messages=iter([])), _config())
+def test_monta_sistema_historico_recente_e_mensagem() -> None:
+    estruturado = EstruturadoFalso(SaidaModelo(intencao=Intencao.FAQ))
     historico = [
-        MensagemHistorico(papel="tutor", texto="oi"),
-        MensagemHistorico(papel="assistente", texto="Olá!"),
+        MensagemHistorico(papel="tutor" if i % 2 == 0 else "assistente", texto=f"m{i}")
+        for i in range(6)
     ]
 
-    montadas = gerador._montar_mensagens("quanto custa?", historico)
+    asyncio.run(_classificador(estruturado).classificar("quanto custa?", historico))
 
-    assert [type(m) for m in montadas] == [SystemMessage, HumanMessage, AIMessage, HumanMessage]
-    assert "procure a recepção do PetCare Hub" in montadas[0].content
-    assert "segunda a sábado" in montadas[0].content
-    assert montadas[-1].content == "quanto custa?"
-    assert all("Bearer" not in m.content for m in montadas)
-
-
-def test_gerador_retorna_none_quando_modelo_estoura_timeout() -> None:
-    gerador = GeradorLLM(ModeloLento(), _config(LLM_TIMEOUT_SECONDS=0.05))
-
-    assert asyncio.run(gerador.gerar("oi", [])) is None
+    recebidas = estruturado.recebidas
+    assert isinstance(recebidas[0], SystemMessage)
+    assert [m.content for m in recebidas[1:-1]] == ["m2", "m3", "m4", "m5"]
+    assert isinstance(recebidas[1], HumanMessage) and isinstance(recebidas[2], AIMessage)
+    assert recebidas[-1].content == "quanto custa?"
 
 
-def test_gerador_retorna_none_quando_modelo_falha() -> None:
-    gerador = GeradorLLM(ModeloComErro(), _config())
+def test_retorna_none_quando_modelo_estoura_timeout() -> None:
+    classificador = _classificador(EstruturadoFalso(atraso=1), LLM_TIMEOUT_SECONDS=0.05)
 
-    assert asyncio.run(gerador.gerar("oi", [])) is None
-
-
-def test_chat_usa_resposta_do_modelo(gerador) -> None:
-    response = client.post("/api/chat", json={"mensagem": "oi"})
-
-    assert response.json()["resposta"] == "Resposta do modelo."
-    assert gerador.chamadas[0][0] == "oi"
+    assert asyncio.run(classificador.classificar("oi", [])) is None
 
 
-def test_chat_usa_mensagem_fixa_quando_modelo_falha(gerador) -> None:
-    gerador.resposta = None
+def test_retorna_none_quando_modelo_falha() -> None:
+    classificador = _classificador(EstruturadoFalso(erro=ConnectionError("Ollama fora do ar")))
 
-    response = client.post("/api/chat", json={"mensagem": "oi"})
+    assert asyncio.run(classificador.classificar("oi", [])) is None
 
-    assert response.status_code == 200
-    assert response.json()["resposta"] == mensagens.BOAS_VINDAS
+
+def test_retorna_none_quando_saida_e_invalida() -> None:
+    assert asyncio.run(_classificador(EstruturadoFalso(None)).classificar("oi", [])) is None
