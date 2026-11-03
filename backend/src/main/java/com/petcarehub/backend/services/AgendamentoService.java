@@ -16,9 +16,11 @@ import com.petcarehub.backend.exceptions.PetNaoEncontradoException;
 import com.petcarehub.backend.exceptions.ServicoNaoEncontradoException;
 import com.petcarehub.backend.exceptions.AgendamentoNaoEncontradoException;
 import com.petcarehub.backend.exceptions.CancelamentoNaoPermitidoException;
+import com.petcarehub.backend.exceptions.HorarioAgendamentoInvalidoException;
 
 import java.util.List;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 @Service
 public class AgendamentoService {
@@ -43,6 +45,32 @@ public class AgendamentoService {
                 .orElseThrow(() -> new ServicoNaoEncontradoException());
 
         LocalDateTime dataHora = LocalDateTime.parse(request.dataHora());
+
+        LocalTime horario = dataHora.toLocalTime();
+
+        boolean foraDoExpediente =
+                horario.isBefore(LocalTime.of(8, 0))
+                || horario.isAfter(LocalTime.of(17, 30));
+
+        boolean minutoInvalido =
+                horario.getMinute() != 0 && horario.getMinute() != 30;
+
+        boolean temSegundosOuNanos =
+                horario.getSecond() != 0 || horario.getNano() != 0;
+
+        boolean dataHoraInvalida = !dataHora.isAfter(LocalDateTime.now());
+
+        if (foraDoExpediente || minutoInvalido || temSegundosOuNanos || dataHoraInvalida) {
+            throw new HorarioAgendamentoInvalidoException();
+        }
+
+        boolean horarioOcupado =
+                agendamentoRepository.existsByServico_IdAndDataHoraAndStatus(servico.getId(), dataHora, StatusAgendamento.AGENDADO);
+
+        if (horarioOcupado) {
+                throw new AgendamentoConflitanteException();
+        }
+
         Agendamento agendamento = new Agendamento(pet.getTutor(), servico, pet, dataHora);
         Agendamento savedAgendamento = agendamentoRepository.save(agendamento);
 

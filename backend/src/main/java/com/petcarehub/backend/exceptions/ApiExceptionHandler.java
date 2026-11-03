@@ -49,4 +49,16 @@ public class ApiExceptionHandler {
             CancelamentoNaoPermitidoException exception) {
         return ResponseEntity.status(HttpStatus.CONFLICT).build();
     }
+
+    @ExceptionHandler(HorarioAgendamentoInvalidoException.class)
+    public ResponseEntity<Void> tratarHorarioAgendamentoInvalido(
+            HorarioAgendamentoInvalidoException exception) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+    }
+
+    @ExceptionHandler(AgendamentoConflitanteException.class)
+    public ResponseEntity<Void> tratarAgendamentoConflitante(
+            AgendamentoConflitanteException exception) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).build();
+    }
 }
