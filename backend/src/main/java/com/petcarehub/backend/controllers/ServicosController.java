@@ -13,6 +13,8 @@ import com.petcarehub.backend.entities.Servico;
 import com.petcarehub.backend.dtos.servicos.ServicoResponse;
 import org.springframework.web.bind.annotation.RequestBody;
 import com.petcarehub.backend.dtos.servicos.CreateServicoRequest;
+import org.springframework.web.bind.annotation.RequestParam;
+import java.time.LocalDate;
 
 @RestController
 @RequestMapping("/api/servicos")
@@ -30,6 +32,13 @@ public class ServicosController {
                 .map(servico -> new ServicoResponse(servico.getId(), servico.getNome(), servico.getDescricao(), servico.getPreco()))
                 .toList();
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/{id}/horarios")
+    public ResponseEntity<List<String>> getHorariosLivres(
+            @PathVariable Long id,
+            @RequestParam LocalDate data) {
+        return ResponseEntity.ok(servicoService.getHorariosLivres(id, data));
     }
 
     @PostMapping("/")
