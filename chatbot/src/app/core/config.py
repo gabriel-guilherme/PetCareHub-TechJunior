@@ -13,6 +13,7 @@ class Settings(BaseSettings):
     )
 
     BACKEND_API_URL: str = "http://backend:8080/api"
+    BACKEND_MOCK: bool = False
     LLM_PROVIDER: str = "ollama"
     LLM_API_KEY: str | None = None
     LLM_MODEL: str = "llama3.2"
@@ -30,6 +31,8 @@ class Settings(BaseSettings):
     # Limites de tempo (RNF11)
     BACKEND_TIMEOUT_SECONDS: float = Field(default=3.0, gt=0)
     LLM_TIMEOUT_SECONDS: float = Field(default=6.0, gt=0)
+    TEMPO_MAXIMO_RESPOSTA_SECONDS: float = Field(default=10.0, gt=0)
+    LLM_REDACAO: bool = True
 
     # Limites do contrato de entrada do chat.
     CHAT_MAX_MENSAGEM: int = Field(default=1000, ge=1)
