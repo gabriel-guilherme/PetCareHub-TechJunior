@@ -28,7 +28,7 @@ public class Pet {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long Id;
+    private Long id;
 
     @Setter
     @NotBlank
@@ -41,7 +41,6 @@ public class Pet {
     private String especie;
 
     @Setter
-    @NotBlank
     @Column(length = 120)
     private String raca;
 
