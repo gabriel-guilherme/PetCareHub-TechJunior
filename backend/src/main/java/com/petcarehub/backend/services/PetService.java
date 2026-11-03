@@ -17,6 +17,8 @@ import java.time.LocalDate;
 import com.petcarehub.backend.exceptions.TutorNaoEncontradoException;
 import com.petcarehub.backend.exceptions.PetNaoEncontradoException;
 import com.petcarehub.backend.exceptions.ExclusaoDePetComAgendamentoException;
+import com.petcarehub.backend.entities.StatusAgendamento;
+import java.time.LocalDateTime;
 
 @Service
 public class PetService {
@@ -75,7 +77,7 @@ public class PetService {
 
     public void deletePet(Long petId, Long tutorId) {
         petRepository.findByIdAndTutor_Id(petId, tutorId).orElseThrow(() -> new PetNaoEncontradoException());
-        if (agendamentoRepository.existsByPet_Id(petId)) {
+        if (agendamentoRepository.existsByPet_IdAndDataHoraAfterAndStatus(petId, LocalDateTime.now(), StatusAgendamento.AGENDADO)) {
             throw new ExclusaoDePetComAgendamentoException();
         }
         petRepository.deleteById(petId);
