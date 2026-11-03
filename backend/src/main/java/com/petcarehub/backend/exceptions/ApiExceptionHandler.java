@@ -31,4 +31,22 @@ public class ApiExceptionHandler {
             PetNaoEncontradoException exception) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
+
+    @ExceptionHandler(ServicoNaoEncontradoException.class)
+    public ResponseEntity<Void> tratarServicoNaoEncontrado(
+            ServicoNaoEncontradoException exception) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+    }
+
+    @ExceptionHandler(AgendamentoNaoEncontradoException.class)
+    public ResponseEntity<Void> tratarAgendamentoNaoEncontrado(
+            AgendamentoNaoEncontradoException exception) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+    }
+
+    @ExceptionHandler(CancelamentoNaoPermitidoException.class)
+    public ResponseEntity<Void> tratarCancelamentoNaoPermitido(
+            CancelamentoNaoPermitidoException exception) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).build();
+    }
 }
