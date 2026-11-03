@@ -17,6 +17,7 @@ import com.petcarehub.backend.exceptions.ServicoNaoEncontradoException;
 import com.petcarehub.backend.exceptions.AgendamentoNaoEncontradoException;
 import com.petcarehub.backend.exceptions.CancelamentoNaoPermitidoException;
 import com.petcarehub.backend.exceptions.HorarioAgendamentoInvalidoException;
+import com.petcarehub.backend.exceptions.AgendamentoConflitanteException;
 
 import java.util.List;
 import java.time.LocalDateTime;
