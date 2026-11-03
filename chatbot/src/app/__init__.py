@@ -1,0 +1,1 @@
+"""PetCare Hub chatbot application."""
