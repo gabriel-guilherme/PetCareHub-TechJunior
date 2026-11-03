@@ -1,6 +1,7 @@
 package com.petcarehub.backend.services;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -31,6 +32,7 @@ public class PetService {
                 .toList();
     }
 
+    @Transactional
     public PetResponse createPet(CreatePetRequest request, Long tutorId) {
         Tutor tutor = tutorRepository.findById(tutorId)
                 .orElseThrow(() -> new TutorNaoEncontradoException());
@@ -52,6 +54,7 @@ public class PetService {
         return new PetResponse(savedPet.getId(), savedPet.getNome(), savedPet.getEspecie(), savedPet.getRaca(), savedPet.getDataNascimento().toString(), savedPet.getAnosDeIdade());
     }
 
+    @Transactional
     public PetResponse updatePet(UpdatePetRequest pet, Long id, Long tutorId) {
         Pet existingPet = petRepository.findByIdAndTutor_Id(id, tutorId)
                 .orElseThrow(() -> new PetNaoEncontradoException());

@@ -2,6 +2,7 @@ package com.petcarehub.backend.services;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.petcarehub.backend.dtos.auth.*;
 import com.petcarehub.backend.entities.Tutor;
@@ -25,6 +26,7 @@ public class AuthService {
         this.jwtService = jwtService;
     }
 
+    @Transactional
     public TutorResponse registrarTutor(RegistroRequest request) {
         if (tutorRepository.existsByEmail(request.email())) {
             throw new EmailJaCadastradoException();
