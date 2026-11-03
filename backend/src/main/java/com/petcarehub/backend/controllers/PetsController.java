@@ -51,8 +51,9 @@ public class PetsController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deletePet(@PathVariable Long id) {
-        petService.deletePet(id); // Implement the logic to delete a pet
+    public ResponseEntity<String> deletePet(@PathVariable Long id, @AuthenticationPrincipal Jwt jwt) {
+        Long tutorId = Long.valueOf(jwt.getSubject());
+        petService.deletePet(id, tutorId);
         return ResponseEntity.noContent().build();
     }
 }

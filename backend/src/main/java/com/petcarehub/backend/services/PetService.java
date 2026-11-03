@@ -69,7 +69,8 @@ public class PetService {
 
     }
 
-    public void deletePet(Long petId) {
+    public void deletePet(Long petId, Long tutorId) {
+        petRepository.findByIdAndTutor_Id(petId, tutorId).orElseThrow(() -> new PetNaoEncontradoException());
         petRepository.deleteById(petId);
     }
 }
