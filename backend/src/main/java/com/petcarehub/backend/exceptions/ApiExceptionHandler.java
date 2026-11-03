@@ -61,4 +61,10 @@ public class ApiExceptionHandler {
             AgendamentoConflitanteException exception) {
         return ResponseEntity.status(HttpStatus.CONFLICT).build();
     }
+
+    @ExceptionHandler(ExclusaoDePetComAgendamentoException.class)
+    public ResponseEntity<Void> tratarExclusaoDePetComAgendamento(
+            ExclusaoDePetComAgendamentoException exception) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).build();
+    }
 }

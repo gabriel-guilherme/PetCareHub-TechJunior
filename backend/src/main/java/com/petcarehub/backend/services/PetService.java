@@ -7,6 +7,7 @@ import java.util.List;
 
 import com.petcarehub.backend.repositories.PetRepository;
 import com.petcarehub.backend.repositories.TutorRepository;
+import com.petcarehub.backend.repositories.AgendamentoRepository;
 import com.petcarehub.backend.entities.Pet;
 import com.petcarehub.backend.entities.Tutor;
 import com.petcarehub.backend.dtos.pets.CreatePetRequest;
@@ -20,10 +21,12 @@ import com.petcarehub.backend.exceptions.PetNaoEncontradoException;
 public class PetService {
     private final PetRepository petRepository;
     private final TutorRepository tutorRepository;
+    private final AgendamentoRepository agendamentoRepository;
 
-    public PetService(PetRepository petRepository, TutorRepository tutorRepository) {
+    public PetService(PetRepository petRepository, TutorRepository tutorRepository, AgendamentoRepository agendamentoRepository) {
         this.petRepository = petRepository;
         this.tutorRepository = tutorRepository;
+        this.agendamentoRepository = agendamentoRepository;
     }
 
     public List<PetResponse> getAllPetsByTutorId(Long tutorId) {
@@ -71,6 +74,9 @@ public class PetService {
 
     public void deletePet(Long petId, Long tutorId) {
         petRepository.findByIdAndTutor_Id(petId, tutorId).orElseThrow(() -> new PetNaoEncontradoException());
+        if (agendamentoRepository.existsByPet_Id(petId)) {
+            throw new ExclusaoDePetComAgendamentoException();
+        }
         petRepository.deleteById(petId);
     }
 }
