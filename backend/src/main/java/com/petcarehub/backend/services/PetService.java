@@ -16,6 +16,7 @@ import com.petcarehub.backend.dtos.pets.PetResponse;
 import java.time.LocalDate;
 import com.petcarehub.backend.exceptions.TutorNaoEncontradoException;
 import com.petcarehub.backend.exceptions.PetNaoEncontradoException;
+import com.petcarehub.backend.exceptions.ExclusaoDePetComAgendamentoException;
 
 @Service
 public class PetService {
