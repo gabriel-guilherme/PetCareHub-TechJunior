@@ -14,7 +14,7 @@ arquitetural inicial realizada nos dias 1–3.
 | Configuração | `pydantic-settings` e variáveis de ambiente | Mantém URLs e configuração fora do código. |
 | Integração com backend | `httpx.AsyncClient` | Cliente assíncrono para chamar a API Spring Boot e encaminhar o JWT fora do prompt. |
 | Testes | `pytest` e `FastAPI TestClient` | Testes sem dependência obrigatória de serviços externos. |
-| Execução | Docker Compose | Ambiente reproduzível; Ollama fica em perfil opcional para não baixar modelo em todo `up`. |
+| Execução | Docker Compose com chatbot, Ollama e `ollama-init` | `docker compose up` sobe tudo; o `ollama-init` baixa o modelo na primeira vez e o deixa carregado. GPU NVIDIA opcional via `docker-compose.gpu.yml`. |
 
 ## Custo, latência e qualidade
 
@@ -48,8 +48,15 @@ foi possível confirmar em vez de completar por inferência.
 - Tratar timeout e falha do modelo sem declarar sucesso ou executar ações.
 
 Variáveis principais: `LLM_PROVIDER=ollama`, `LLM_MODEL=llama3.2` e
-`OLLAMA_BASE_URL=http://ollama:11434`. O perfil `llm` do Compose inicia Ollama
-separadamente; o modelo deve ser baixado uma vez com `ollama pull`.
+`OLLAMA_BASE_URL=http://ollama:11434`. O serviço `ollama-init` baixa o modelo
+no volume `ollama_data` na primeira subida e o carrega na memória antes de o
+chatbot iniciar; `OLLAMA_KEEP_ALIVE=-1` mantém o modelo carregado.
+
+Em CPU, os modelos testados não cabem no limite de 6 s do modelo:
+`qwen3.5:4b` levou 13–23 s e `llama3.2` (3b) 5–14 s, ambos com boas respostas;
+`llama3.2:1b` respondeu em 1–3 s, mas ignorou as regras do prompt. Com GPU
+(`docker-compose.gpu.yml` e NVIDIA Container Toolkit), `qwen3.5:4b` respondeu
+em menos de 1 s.
 
 ## Arquitetura
 
@@ -80,4 +87,4 @@ Frontend
 | RF18 | Recusa cordial fora de escopo sem inventar canal de atendimento. |
 | RNF02 | Segredos em variáveis de ambiente, nunca em código ou prompt. |
 | RNF11 | pt-BR, dados verificáveis, timeout e meta de até 10 segundos. |
-| RNF12 | Serviço em Docker Compose; Ollama habilitado no perfil local opcional. |
+| RNF12 | Chatbot, Ollama e download do modelo sobem com `docker compose up`. |

@@ -1,0 +1,13 @@
+# Override opcional: roda o Ollama na GPU NVIDIA. Requer o NVIDIA Container
+# Toolkit instalado na máquina; sem ele o "up" falha ao reservar a GPU.
+#
+#   docker compose -f docker-compose.yml -f docker-compose.gpu.yml up -d --build
+services:
+  ollama:
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
